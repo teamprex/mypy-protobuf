@@ -23,7 +23,7 @@ import google.protobuf.descriptor_pb2 as d
 from google.protobuf.compiler import plugin_pb2 as plugin_pb2
 from google.protobuf.internal.containers import RepeatedCompositeFieldContainer
 from google.protobuf.internal.well_known_types import WKTBASES
-from . import extensions_pb2
+from . import extensions_pb2, mypy_ext_pb2
 
 __version__ = "2.9"
 
