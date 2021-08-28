@@ -10,6 +10,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Generator,
     Iterable,
     Iterator,
     List,
@@ -162,6 +163,12 @@ class PkgWriter(object):
         # dictionary of x->(y,z) for `from {x} import {y} as {z}`
         # if {z} is None, then it shortens to `from {x} import {y}`
         self.from_imports: Dict[str, Set[Tuple[str, Optional[str]]]] = defaultdict(set)
+
+        # Custom types
+        self.custom_types = {}
+        if mypy_ext_pb2.pytype_import in fd.options.Extensions:
+            for t in fd.options.Extensions[mypy_ext_pb2.pytype_import]:
+                self.custom_types[t.type] = self._import(t.module, t.type)
 
         # Comments
         self.source_code_info_by_scl = {
@@ -818,8 +825,16 @@ class PkgWriter(object):
             ),
         }
 
-        assert field.type in mapping, "Unrecognized type: " + repr(field.type)
-        field_type = mapping[field.type]()
+        if mypy_ext_pb2.pytype in field.options.Extensions:
+            custom_type = field.options.Extensions[mypy_ext_pb2.pytype]
+            if custom_type not in self.custom_types:
+                raise KeyError(
+                    "Unknown type: %s. Use pytype_import before use." % custom_type
+                )
+            field_type = self.custom_types[custom_type]
+        else:
+            assert field.type in mapping, "Unrecognized type: " + repr(field.type)
+            field_type = mapping[field.type]()
 
         # For non-repeated fields, we're done!
         if field.label != d.FieldDescriptorProto.LABEL_REPEATED:
