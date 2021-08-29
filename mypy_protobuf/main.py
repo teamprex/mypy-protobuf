@@ -760,8 +760,10 @@ class PkgWriter(object):
             l("class {}Stub:", service.name)
             with self._indent():
                 l(
-                    "def __init__(self, channel: {}) -> None: ...",
+                    "def __init__(self, channel: {}[{}, {}]) -> None: ...",
+                    self._import("typing", "Union"),
                     self._import("grpc", "Channel"),
+                    self._import("grpc.aio", "Channel"),
                 )
                 self.write_grpc_stub_methods(service, scl)
             l("")
