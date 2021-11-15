@@ -26,7 +26,7 @@ from google.protobuf.internal.containers import RepeatedCompositeFieldContainer
 from google.protobuf.internal.well_known_types import WKTBASES
 from . import extensions_pb2, mypy_ext_pb2
 
-__version__ = "2.9+prex.1"
+__version__ = "2.9+prex.2"
 
 # SourceCodeLocation is defined by `message Location` here
 # https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf/descriptor.proto
@@ -717,7 +717,7 @@ class PkgWriter(object):
             l("def {}(self,", method.name)
             with self._indent():
                 l("request: {},", self._input_type(method))
-                l("context: {},", self._import("grpc", "ServicerContext"))
+                l("context: {},", self._import("grpc.aio", "ServicerContext"))
             l(") -> {}: ...", self._output_type(method))
             l("")
 
