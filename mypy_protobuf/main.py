@@ -26,7 +26,7 @@ from google.protobuf.internal.containers import RepeatedCompositeFieldContainer
 from google.protobuf.internal.well_known_types import WKTBASES
 from . import extensions_pb2, mypy_ext_pb2
 
-__version__ = "2.9+prex.2"
+__version__ = "2.9+prex.3"
 
 # SourceCodeLocation is defined by `message Location` here
 # https://github.com/protocolbuffers/protobuf/blob/master/src/google/protobuf/descriptor.proto
@@ -782,7 +782,7 @@ class PkgWriter(object):
                 "def add_{}Servicer_to_server(servicer: {}Servicer, server: {}) -> None: ...",
                 service.name,
                 service.name,
-                self._import("grpc", "Server"),
+                self._import("grpc.aio", "Server"),
             )
             l("")
 
