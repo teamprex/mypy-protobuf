@@ -4,8 +4,6 @@ mypy-protobuf: Generate mypy stub files from protobuf specs
 - Original: `origin-main` branch
 - Customized parts: https://github.com/prestolabs/mypy-protobuf/commit/5e271cd8f48ab4e4ed1d5f1c1e7e20ad35ca7f8c
 
----
-
 ## Installation
 
 The plugin can be installed with
@@ -32,7 +30,6 @@ Check the version number with
 ```
 > protoc-gen-mypy --version
 ```
-
 
 Licence etc.
 ------------

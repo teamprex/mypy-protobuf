@@ -1,8 +1,48 @@
 ## Upcoming
 
+## 3.2.0
+
+- Drop support for Python 3.6 [EOL]
+- Remove unnecessary `...` in generated files.
+- Reorder/reference enum classes to avoid forward references.
+- Support `*_FIELD_NUMBER` for extensions
+- Bump types-protobuf dependency to 3.19
+- Require protobuf 3.19.3
+- Support DESCRIPTOR: ServiceDescriptor in py generic services
+- More accurately represent method names in py generic services (done -> callback, self -> inst)
+- More accurately represent method names in grpc services (`request` -> `request_iterator`)
+- Internal: Get tests to pass on pure-python protobuf impl (minor semantic differences)
+- Internal: Bump pyright in testing to 1.1.206
+- Internal: Use stubtest to validate generated stubs match generated runtime
+
+## 3.1.0
+
+- Require protobuf 3.19.1
+- Change `EnumTypeWrapper.V` to `EnumTypeWrapper.ValueType` per https://github.com/protocolbuffers/protobuf/pull/8182.
+Will allow for unquoted annotations starting with protobuf 3.20.0. `.V` will continue to work for the foreseeable
+future for backward compatibility.
+- suppress pyright warning reportSelfClsParameterName when a proto field is named `self`
+- Allow optional constructor keywords for primitive field types in proto3, following this [chart](https://github.com/protocolbuffers/protobuf/blob/master/docs/field_presence.md#presence-in-proto3-apis).
+- Reorder Enum helper classes to eliminate pycharm errors
+
+## 3.0.0
+
+- Drop support for targeting python 2.7
+- Generate py3 specific syntax for unicode strings (`""` rather than `u""`)
+- Now requires protobuf 3.18.0
+- Handle escaping properly in docstrings and attribute strings (#296)
+- Use three-digit version number 3.0.0 for minor and patch releases
+- Codify pyright support in README
+
+## 2.10
+
 - Switch from setup.py to pyproject.toml and setup.cfg per https://packaging.python.org/tutorials/packaging-projects/
 - Remove dependency on grpcio-tools. mypy-protobuf doesn't need it to run. It's only needed to run mypy afterward.
 - Avoid relative imports in `_grpc_pb2.pyi` stubs. grpc stubs themselves don't use relative imports, nor `__init__.py` files
+- Use `"""` docstring style comments in generated code rather than `#` style so it shows up in IDEs.
+- Disambiguate messages from reserved python keywords (eg `None`) with prefix `_r_` rather than `__` - since `__` is considered private.
+- Bump tests to use pyright 1.1.169, types-protobuf 3.17.4, pytest 6.2.5, grpc-stubs 1.24.7, grpcio-tools 1.40.0
+- Since upstream protobuf has dropped support with 3.18.0, 2.10 will be the last mypy-protobuf that supports targeting python 2.7. Updated docs for this.
 
 ## 2.9
 
@@ -19,8 +59,8 @@
 
 ## 2.7
 
-- Fix [#244](https://github.com/dropbox/mypy-protobuf/issues/244) - support extensions defined at module scope with proper types, matching extensions defined within Messages. See [_ExtensionDict](https://github.com/python/typeshed/blob/4765978f6ceeb24e10bdf93c0d4b72dfb35836d4/stubs/protobuf/google/protobuf/internal/extension_dict.pyi#L9)
-```
+- Fix [#244](https://github.com/dropbox/mypy-protobuf/issues/244) - support extensions defined at module scope with proper types, matching extensions defined within Messages. See [`_ExtensionDict`](https://github.com/python/typeshed/blob/4765978f6ceeb24e10bdf93c0d4b72dfb35836d4/stubs/protobuf/google/protobuf/internal/extension_dict.pyi#L9)
+```proto
 extend google.protobuf.MessageOptions {
    string test_message_option = 51234;
 }
@@ -45,7 +85,7 @@ that grouping to make it a bit easier to correlate .proto files to .pyi files.
 - Bump protoc support to 3.17.3
 - Use latest python versions in tests (3.6.14 3.7.11 3.8.11 3.9.6)
 - Support reserved names for message types. Previously generated invalid mypy.
-```
+```proto
 message M {
   message None {}
   None none = 1;
@@ -54,7 +94,7 @@ message M {
 - Support `protoc-gen-mypy -V` and `protoc-gen-mypy --version` to print version number
 - Return `Optional[Literal[...]]` instead of `Literal[...]` from WhichOneof to support
 cases in which none of the fields of the WhichOneof are set. See the following example.
-```
+```python
 def hello(name: str) -> None: ...
 n = proto.WhichOneof("name")
 hello(n)  # Will now result in a mypy error.
@@ -138,13 +178,13 @@ Internal Improvements
 - Add support for optional proto3 fields
 - Support ScalarMap and MessageMap generated types for map types in proto.  This will allow us to support `get_or_create`
 
-```
+```proto
 message Message {
     map<int32, OuterMessage3> map_message = 17
 }
 ```
 and
-```
+```python
 message.map_message.get_or_create(0)
 ```
 
@@ -176,14 +216,14 @@ with generated python code. Most caller code should not require mypy type change
 `ProtoEnum.Value('first')` should work either way.
 
 Generated Before (in 1.21)
-```
+```python
 class ProtoEnum(object):
     @classmethod
     def Value(cls, name: str) -> ProtoEnumValue
 ```
 
 Generated After (in 1.22)
-```
+```python
 ProtoEnum: _ProtoEnum
 class _ProtoEnum(google.protobuf.EnumTypeWrapper):
     def Value(self, name: str) -> ProtoEnumValue
@@ -198,7 +238,7 @@ class _ProtoEnum(google.protobuf.EnumTypeWrapper):
 an enum value must happen via a NewType wrapper to the int.
 
 Example:
-```
+```proto
 enum ProtoEnum {
     FIRST = 1;
     SECOND = 2;
@@ -209,7 +249,7 @@ mesage ProtoMsg {
 }
 ```
 Generated Before (in 1.20):
-```
+```python
 class ProtoEnum(object):
     @classmethod
     def Value(cls, name: str) -> ProtoEnum
@@ -218,7 +258,7 @@ class ProtoMsg(Message):
     def __init__(self, enum: ProtoEnum) -> None
 ```
 Generated After (in 1.21):
-```
+```python
 ProtoEnumValue = NewType('ProtoEnumValue', int)
 class ProtoEnum(object):
     @classmethod
@@ -230,7 +270,7 @@ class ProtoMsg(Message):
 Migration Guide (with example calling code)
 
 Before (with 1.20)
-```
+```python
 from msg_pb2 import ProtoEnum, ProtoMsg
 
 def make_proto_msg(enum: ProtoEnum) -> ProtoMsg:
@@ -238,7 +278,7 @@ def make_proto_msg(enum: ProtoEnum) -> ProtoMsg:
 make_proto_msg(ProtoMsg.FIRST)
 ```
 After (with 1.21)
-```
+```python
 from msg_pb2 import ProtoEnum, ProtoMsg
 
 def make_proto_msg(enum: 'msg_pb2.ProtoEnumValue') -> ProtoMsg:

@@ -9,18 +9,19 @@ import google.protobuf.message
 import typing
 import typing_extensions
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor = ...
-
-# Intentionally don't set a package - just to make sure we can handle it.
+DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
 class NoPackage(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor = ...
+    """Intentionally don't set a package - just to make sure we can handle it.
+
+    """
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
     def __init__(self,
         ) -> None: ...
 global___NoPackage = NoPackage
 
 class NoPackage2(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor = ...
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
     NP_FIELD_NUMBER: builtins.int
     NP_REP_FIELD_NUMBER: builtins.int
     @property
@@ -29,9 +30,9 @@ class NoPackage2(google.protobuf.message.Message):
     def np_rep(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___NoPackage]: ...
     def __init__(self,
         *,
-        np : typing.Optional[global___NoPackage] = ...,
-        np_rep : typing.Optional[typing.Iterable[global___NoPackage]] = ...,
+        np: typing.Optional[global___NoPackage] = ...,
+        np_rep: typing.Optional[typing.Iterable[global___NoPackage]] = ...,
         ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal[u"np",b"np"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal[u"np",b"np",u"np_rep",b"np_rep"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["np",b"np"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["np",b"np","np_rep",b"np_rep"]) -> None: ...
 global___NoPackage2 = NoPackage2

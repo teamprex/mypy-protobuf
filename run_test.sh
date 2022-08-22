@@ -4,10 +4,10 @@ RED="\033[0;31m"
 NC='\033[0m'
 PROTOC=${PROTOC:=protoc}
 
-PY_VER_MYPY_PROTOBUF=${PY_VER_MYPY_PROTOBUF:=3.9.6}
+PY_VER_MYPY_PROTOBUF=${PY_VER_MYPY_PROTOBUF:=3.10.1}
 PY_VER_MYPY_PROTOBUF_SHORT=$(echo $PY_VER_MYPY_PROTOBUF | cut -d. -f1-2)
 PY_VER_MYPY=${PY_VER_MYPY:=3.8.11}
-PY_VER_UNIT_TESTS="${PY_VER_UNIT_TESTS_3:=3.8.11} ${PY_VER_UNIT_TESTS_2:=2.7.18}"
+PY_VER_UNIT_TESTS="${PY_VER_UNIT_TESTS_3:=3.8.11}"
 
 PROTOC_ARGS="--proto_path=proto/ --experimental_allow_proto3_optional"
 GRPC_PROTOS=$(find proto/testproto/grpc -name "*.proto")
@@ -70,10 +70,10 @@ MYPY_PROTOBUF_VENV=venv_$PY_VER_MYPY_PROTOBUF
     source $MYPY_PROTOBUF_VENV/bin/activate
 
     # Confirm version number
-    test "$(protoc-gen-mypy -V)" = "mypy-protobuf 2.9"
-    test "$(protoc-gen-mypy --version)" = "mypy-protobuf 2.9"
-    test "$(protoc-gen-mypy_grpc -V)" = "mypy-protobuf 2.9"
-    test "$(protoc-gen-mypy_grpc --version)" = "mypy-protobuf 2.9"
+    test "$(protoc-gen-mypy -V)" = "mypy-protobuf 3.2.0"
+    test "$(protoc-gen-mypy --version)" = "mypy-protobuf 3.2.0"
+    test "$(protoc-gen-mypy_grpc -V)" = "mypy-protobuf 3.2.0"
+    test "$(protoc-gen-mypy_grpc --version)" = "mypy-protobuf 3.2.0"
 
     # Run mypy on mypy-protobuf internal code for developers to catch issues
     FILES="mypy_protobuf/main.py"
@@ -82,7 +82,7 @@ MYPY_PROTOBUF_VENV=venv_$PY_VER_MYPY_PROTOBUF
     # Generate protos
     python --version
     $PROTOC --version
-    expected="libprotoc 3.17.3"
+    expected="libprotoc 3.19.3"
     if [[ $($PROTOC --version) != $expected ]]; then
         echo -e "${RED}For tests - must install protoc version ${expected} ${NC}"
         exit 1
@@ -122,37 +122,22 @@ for PY_VER in $PY_VER_UNIT_TESTS; do
     PY_VER_MYPY_TARGET=$(echo $PY_VER | cut -d. -f1-2)
 
     # Generate GRPC protos for mypy / tests
-    if [[ $PY_VER =~ ^3.* ]]; then
-        (
-            source $UNIT_TESTS_VENV/bin/activate
-            python -m grpc_tools.protoc $PROTOC_ARGS --grpc_python_out=test/generated $GRPC_PROTOS
-        )
-    fi
+    (
+        source $UNIT_TESTS_VENV/bin/activate
+        python -m grpc_tools.protoc $PROTOC_ARGS --grpc_python_out=test/generated $GRPC_PROTOS
+    )
 
     # Run mypy on unit tests / generated output
     (
         source $MYPY_VENV/bin/activate
 
         # Run mypy
-        # --python-version=2.7 chokes on the generated grpc files - so split them out here
-        FILES27="$(ls test/*.py | grep -v grpc)  $(find test/generated -name "*.pyi" | grep -v grpc)"
-        FILES38="test/"
-        if [ $PY_VER_MYPY_TARGET = "2.7" ]; then
-            FILES=$FILES27
-        else
-            FILES=$FILES38
-        fi
+        FILES="test/"
         mypy --custom-typeshed-dir=$CUSTOM_TYPESHED_DIR --python-executable=$UNIT_TESTS_VENV/bin/python --python-version=$PY_VER_MYPY_TARGET $FILES
+        PYTHONPATH=test/generated MYPYPATH=$MYPYPATH:test/generated python3 -m mypy.stubtest --custom-typeshed-dir=$CUSTOM_TYPESHED_DIR --allowlist stubtest_allowlist.txt testproto
 
         # run mypy on negative-tests (expected mypy failures)
-        # --python-version=2.7 chokes on the generated grpc files - so split them out here
-        NEGATIVE_FILES_27="test_negative/negative.py test_negative/negative_2.7.py $FILES27"
-        NEGATIVE_FILES_38="test_negative/negative.py test_negative/negative_3.8.py $FILES38"
-        if [ $PY_VER_MYPY_TARGET = "2.7" ]; then
-            NEGATIVE_FILES=$NEGATIVE_FILES_27
-        else
-            NEGATIVE_FILES=$NEGATIVE_FILES_38
-        fi
+        NEGATIVE_FILES="test_negative/negative.py test_negative/negative_3.8.py $FILES"
 
         MYPY_OUTPUT=`mktemp -d`
         call_mypy() {
@@ -167,10 +152,7 @@ for PY_VER in $PY_VER_UNIT_TESTS; do
             echo -e "${RED}test_negative/output.expected.$PY_VER_MYPY_TARGET didnt match. Copying over for you. Now rerun${NC}"
 
             # Copy over all the mypy results for the developer.
-            call_mypy 2.7.18 $NEGATIVE_FILES_27
-            cp $MYPY_OUTPUT/mypy_output test_negative/output.expected.2.7
-            cp $MYPY_OUTPUT/mypy_output.omit_linenos test_negative/output.expected.2.7.omit_linenos
-            call_mypy 3.8.11 $NEGATIVE_FILES_38
+            call_mypy 3.8.11 $NEGATIVE_FILES
             cp $MYPY_OUTPUT/mypy_output test_negative/output.expected.3.8
             cp $MYPY_OUTPUT/mypy_output.omit_linenos test_negative/output.expected.3.8.omit_linenos
             exit 1
@@ -180,7 +162,6 @@ for PY_VER in $PY_VER_UNIT_TESTS; do
     (
         # Run unit tests.
         source $UNIT_TESTS_VENV/bin/activate
-        if [[ $PY_VER =~ ^2.* ]]; then IGNORE="--ignore=test/test_grpc_usage.py"; else IGNORE=""; fi
-        PYTHONPATH=test/generated py.test --ignore=test/generated $IGNORE -v
+        PYTHONPATH=test/generated py.test --ignore=test/generated -v
     )
 done
