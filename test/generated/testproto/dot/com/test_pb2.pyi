@@ -5,18 +5,26 @@ isort:skip_file
 import builtins
 import google.protobuf.descriptor
 import google.protobuf.message
-import typing
-import typing_extensions
+import sys
+
+if sys.version_info >= (3, 8):
+    import typing as typing_extensions
+else:
+    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
+@typing_extensions.final
 class TestMessage(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
     FOO_FIELD_NUMBER: builtins.int
-    foo: typing.Text
-    def __init__(self,
+    foo: builtins.str
+    def __init__(
+        self,
         *,
-        foo: typing.Text = ...,
-        ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["foo",b"foo"]) -> None: ...
+        foo: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["foo", b"foo"]) -> None: ...
+
 global___TestMessage = TestMessage

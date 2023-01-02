@@ -1,54 +1,54 @@
 name: CI
 
 # Run on git push, PR, or manually from the Actions tab
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   run_test:
     name: ${{ matrix.py-ver-mypy-protobuf }}
     runs-on: ubuntu-latest
     env:
-      PY_VER_MYPY: 3.8.11
-      PY_VER_UNIT_TESTS_3: 3.8.11
+      PY_VER_MYPY: 3.8.13
+      PY_VER_UNIT_TESTS_3: 3.8.13
     strategy:
       matrix:
         # Running mypy-protobuf itself
         py-ver-mypy-protobuf: [
-            3.7.12,
-            3.8.12,
-            3.9.9,
-            3.10.1,
+          3.7.13,
+          3.8.13,
+          3.9.13,
+          3.10.6,
         ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Read version numbers
         run: |
           echo ::set-output name=PROTOBUF_VERSION::$(grep "^protobuf>=" test_requirements.txt | cut -f2 -d=)
           echo ::set-output name=PYRIGHT_VERSION::$(grep '"pyright"' .github/package.json | cut -d\" -f4)
         id: read_versions
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v1
-        with:
-          version: "${{ steps.read_versions.outputs.PROTOBUF_VERSION }}"
       - name: Cache pyenv
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
               ~/.pyenv
               !~/.pyenv/versions
           key: pyenv-installation-2
       - name: Cache pyenv mypy-protobuf ver
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.pyenv/versions/${{matrix.py-ver-mypy-protobuf}}
           key: pyenv-${{matrix.py-ver-mypy-protobuf}}-${{hashFiles('setup.py')}}
       - name: Cache pyenv unit tests 3 ver
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.pyenv/versions/${{env.PY_VER_UNIT_TESTS_3}}
           key: pyenv-${{env.PY_VER_UNIT_TESTS_3}}-${{hashFiles('setup.py')}}
       - name: Cache pyenv mypy ver
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.pyenv/versions/${{env.PY_VER_MYPY}}
           key: pyenv-${{env.PY_VER_MYPY}}-${{hashFiles('setup.py')}}
@@ -87,23 +87,30 @@ jobs:
         with:
           version: "${{ steps.read_versions.outputs.PYRIGHT_VERSION }}"
 
-  black:
-    name: Black formatting
+  linting:
+    name: Linting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - name: Run black
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+      - name: Run formatters and linters
         run: |
-          pip3 install black
+          pip3 install black isort flake8-pyi flake8-noqa flake8-bugbear
           black --check .
+          isort --check . --diff
+          flake8 .
+      - name: run shellcheck
+        uses: reviewdog/action-shellcheck@v1
+        with:
+          # By default, shellcheck tries to make sure any external files referenced actually exist
+          shellcheck_flags: -e SC1091
 
   sanity_check_windows:
     name: Sanity Check Windows Executable
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
       - name: Read versions
         run: echo ::set-output name=PROTOBUF_VERSION::$(grep "^protobuf>=" test_requirements.txt | cut -f2 -d=)
         id: read_versions

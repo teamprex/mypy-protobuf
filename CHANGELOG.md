@@ -1,8 +1,32 @@
 ## Upcoming
 
+## 3.4.0
+
+- Mark messages as @typing.final
+- Switch to use the reserved mypy-protobuf extension option numbers https://github.com/protocolbuffers/protobuf/blob/main/docs/options.md
+- Bump protobuf dependency to 4.21.8
+- Skip unnecessary flake8 noqa F821 on module scope fwd reference classes
+
+## 3.3.0
+
+- Prefer (mypy_protobuf.options).casttype to (mypy_protobuf.casttype)
+    - Allows us to use a single extension number
+    - Applies to casttype,keytype,valuetype
+    - Deprecate (but still support) the old-style extension
+- Prefer importing from `typing` over `typing_extensions` on new enough python versions
+- Support emitting module docstrings
+- Make generated code flake8 compatible
+- Convert extensions.proto to proto3
+- Drop support for Python 3.6 [EOL]
+- Bump to grpc-stubs 1.24.7
+- Require protobuf 3.19.4
+- Bump support to mypy 0.941
+- Use PEP 604 Union syntax `X | None` rather than `Optional[X]`
+- Moved from dropbox/mypy-protobuf to nipunn1313/mypy-protobuf
+  - Nipunn is the primary maintainer and plans to continue maintenance!
+
 ## 3.2.0
 
-- Drop support for Python 3.6 [EOL]
 - Remove unnecessary `...` in generated files.
 - Reorder/reference enum classes to avoid forward references.
 - Support `*_FIELD_NUMBER` for extensions
@@ -53,13 +77,13 @@ future for backward compatibility.
 
 - Propagate comments from .proto files to .pyi files
 - Add protobuf type stubs to the setup requirements
-- Fix [#239](https://github.com/dropbox/mypy-protobuf/issues/239) Remove type: ignore used in enum by pulling `V` into a separate class.
+- Fix [#239](https://github.com/nipunn1313/mypy-protobuf/issues/239) Remove type: ignore used in enum by pulling `V` into a separate class.
 - Use pytest 6.2.4 for internal test suites on python3
 - Remove `protoc_gen_mypy.bat` as the entry-points method creates protoc-gen-mypy.exe. Add test confirming.
 
 ## 2.7
 
-- Fix [#244](https://github.com/dropbox/mypy-protobuf/issues/244) - support extensions defined at module scope with proper types, matching extensions defined within Messages. See [`_ExtensionDict`](https://github.com/python/typeshed/blob/4765978f6ceeb24e10bdf93c0d4b72dfb35836d4/stubs/protobuf/google/protobuf/internal/extension_dict.pyi#L9)
+- Fix [#244](https://github.com/nipunn1313/mypy-protobuf/issues/244) - support extensions defined at module scope with proper types, matching extensions defined within Messages. See [`_ExtensionDict`](https://github.com/python/typeshed/blob/4765978f6ceeb24e10bdf93c0d4b72dfb35836d4/stubs/protobuf/google/protobuf/internal/extension_dict.pyi#L9)
 ```proto
 extend google.protobuf.MessageOptions {
    string test_message_option = 51234;
@@ -74,9 +98,9 @@ test_message_option: google.protobuf.internal.extension_dict._ExtensionFieldDesc
 ```
 Fix repeated extensions as well - to generate RepeatedScalarFieldContainer and RepeatedCompositeFieldContainer
 - Now requires [types-protobuf](https://pypi.org/project/types-protobuf/) 3.17.3
-- Fix [#238](https://github.com/dropbox/mypy-protobuf/issues/238) - handling enum variants that name conflict with EnumTypeWrapper methods
+- Fix [#238](https://github.com/nipunn1313/mypy-protobuf/issues/238) - handling enum variants that name conflict with EnumTypeWrapper methods
 - Improve mypy-protobuf testsuite expected-errors file to make insertions/deletions easier to code review
-- Fix [#227](https://github.com/dropbox/mypy-protobuf/issues/227) - improve support for messages/enums with python reserved keyword names
+- Fix [#227](https://github.com/nipunn1313/mypy-protobuf/issues/227) - improve support for messages/enums with python reserved keyword names
 - Order fields within a message in original .proto file order Previously, they were grouped by scalar/nonscalar. Remove
 that grouping to make it a bit easier to correlate .proto files to .pyi files.
 

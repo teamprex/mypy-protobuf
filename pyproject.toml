@@ -6,7 +6,14 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.black]
-extend-exclude = "(_pb2.pyi?$|_pb2_grpc.pyi?$)"
+extend-exclude = "(_pb2.py$|_pb2_grpc.py$)"
+# We don't care about line length for generated code
+line-length = 10000
+
+[tool.isort]
+profile = "black"
+skip_gitignore = true
+extend_skip_glob = ["*_pb2.py"]
 
 [tool.mypy]
 strict = true
@@ -14,7 +21,7 @@ show_error_codes = true
 
 [tool.pyright]
 venvPath = "."
-venv = "venv_3.8.11"
+venv = "venv_3.8.13"
 # verboseOutput = true
 extraPaths = ["test/generated"]
 include = [
