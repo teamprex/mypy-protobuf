@@ -755,7 +755,7 @@ class PkgWriter(object):
                 if self._write_comments(scl):
                     wl("")
                 wl(
-                    "def __init__(self, channel: {}) -> None: ...",
+                    "def __init__(self, channel: {} | {}) -> None: ...",
                     self._import("grpc", "Channel"),
                     self._import("grpc.aio", "Channel"),
                 )
