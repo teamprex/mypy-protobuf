@@ -6,18 +6,47 @@ import builtins
 import google.protobuf.descriptor
 import google.protobuf.descriptor_pb2
 import google.protobuf.internal.extension_dict
-import typing
+import google.protobuf.message
+import sys
+
+if sys.version_info >= (3, 8):
+    import typing as typing_extensions
+else:
+    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
+@typing_extensions.final
+class FieldOptions(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CASTTYPE_FIELD_NUMBER: builtins.int
+    KEYTYPE_FIELD_NUMBER: builtins.int
+    VALUETYPE_FIELD_NUMBER: builtins.int
+    casttype: builtins.str
+    """Tells mypy-protobuf to use a specific newtype rather than the normal type for this field."""
+    keytype: builtins.str
+    """Tells mypy-protobuf to use a specific type for keys; only makes sense on map fields"""
+    valuetype: builtins.str
+    """Tells mypy-protobuf to use a specific type for values; only makes sense on map fields"""
+    def __init__(
+        self,
+        *,
+        casttype: builtins.str = ...,
+        keytype: builtins.str = ...,
+        valuetype: builtins.str = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["casttype", b"casttype", "keytype", b"keytype", "valuetype", b"valuetype"]) -> None: ...
+
+global___FieldOptions = FieldOptions
+
+OPTIONS_FIELD_NUMBER: builtins.int
 CASTTYPE_FIELD_NUMBER: builtins.int
 KEYTYPE_FIELD_NUMBER: builtins.int
 VALUETYPE_FIELD_NUMBER: builtins.int
-casttype: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.FieldOptions, typing.Text]
-"""Tells mypy to use a specific newtype rather than the normal type for this field."""
-
-keytype: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.FieldOptions, typing.Text]
-"""Tells mypy to use a specific type for keys; only makes sense on map fields"""
-
-valuetype: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.FieldOptions, typing.Text]
-"""Tells mypy to use a specific type for values; only makes sense on map fields"""
+options: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.FieldOptions, global___FieldOptions]
+"""Custom field options from mypy-protobuf"""
+casttype: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.FieldOptions, builtins.str]
+"""Legacy fields. Prefer to use ones within `options` instead."""
+keytype: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.FieldOptions, builtins.str]
+valuetype: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.FieldOptions, builtins.str]

@@ -3,24 +3,21 @@ This code is intended to have mypy failures which we will ensure
 show up in the output.
 """
 
-from typing import (
-    List,
-    Text,
-)
+from test.test_generated_mypy import Email, UserId
+from typing import List
 
+from testproto.dot.com.test_pb2 import TestMessage
+from testproto.test3_pb2 import OuterEnum, OuterMessage3, SimpleProto3
 from testproto.test_extensions2_pb2 import SeparateFileExtension
 from testproto.test_pb2 import (
     DESCRIPTOR,
+    FOO,
     Extensions1,
     Extensions2,
-    FOO,
     PythonReservedKeywords,
     Simple1,
     Simple2,
 )
-from testproto.test3_pb2 import OuterEnum, OuterMessage3, SimpleProto3
-from testproto.dot.com.test_pb2 import TestMessage
-from test.test_generated_mypy import Email, UserId
 
 s = Simple1()
 s.a_string = "Hello"
@@ -101,8 +98,7 @@ simple2.ClearExtension(Extensions1.ext)  # E:2.7 E:3.8
 
 
 for x in s.Extensions:
-    pass
-x = 4  # E:2.7 E:3.8
+    x = 4  # E:2.7 E:3.8
 
 # Overload WhichOneof
 c = s6.WhichOneof("a_oneof")
@@ -162,7 +158,7 @@ s8 = Simple1(
 )
 
 # Should not reexport inner.proto, since it doesn't have public tag.
-from testproto.reexport_pb2 import Inner  # E:2.7 E:3.8
+from testproto.reexport_pb2 import Inner  # E:2.7 E:3.8 # noqa: F401,E402
 
 # In proto2 - you can pass in None for primitive, but not in proto3
 Simple2(a_string=None)
