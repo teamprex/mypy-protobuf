@@ -704,7 +704,7 @@ class PkgWriter(object):
             scl = scl_prefix + [d.ServiceDescriptorProto.METHOD_FIELD_NUMBER, i]
 
             wl("@{}", self._import("abc", "abstractmethod"))
-            wl("def {}(", method.name)
+            wl("async def {}(", method.name)
             with self._indent():
                 wl("self,")
                 input_name = "request_iterator" if method.client_streaming else "request"
