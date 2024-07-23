@@ -693,7 +693,7 @@ class PkgWriter(object):
         if use_stream_iterator and method.server_streaming:
             result = f"{self._import('typing', 'AsyncGenerator')}[{output_type}, {self._import('typing', 'Any')}] | None"
         else:
-            result = f"{self._import_message(method.output_type)} | None"
+            result = f"{self._import_message(method.output_type)}"
         return result
 
     def write_grpc_methods(self, service: d.ServiceDescriptorProto, scl_prefix: SourceCodeLocation) -> None:
