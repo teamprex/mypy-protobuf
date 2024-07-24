@@ -738,7 +738,7 @@ class PkgWriter(object):
             wl("{}: {}[", method.name, self._callable_type(method))
             with self._indent():
                 wl("{},", self._input_type(method, False))
-                wl("{},", self._output_type(method, False))
+                wl("{},", self._output_type(method, False, True))
             wl("]")
             self._write_comments(scl)
 
