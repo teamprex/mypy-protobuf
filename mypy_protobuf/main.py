@@ -689,9 +689,8 @@ class PkgWriter(object):
         return result
 
     def _output_type(self, method: d.MethodDescriptorProto, use_stream_iterator: bool = True, is_stub: bool = False) -> str:
-        output_type = self._import_message(method.output_type)
         if use_stream_iterator and method.server_streaming:
-            result = f"{self._import('typing', 'AsyncGenerator')}[{output_type}, {self._import('typing', 'None')}]"
+            result = "None"
         else:
             if is_stub:
                 result = f"{self._import_message(method.output_type)}"
