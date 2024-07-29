@@ -688,10 +688,14 @@ class PkgWriter(object):
             result = f"{self._import('collections.abc', 'Iterator')}[{result}]"
         return result
 
-    def _output_type(self, method: d.MethodDescriptorProto, use_stream_iterator: bool = True) -> str:
-        result = self._import_message(method.output_type)
+    def _output_type(self, method: d.MethodDescriptorProto, use_stream_iterator: bool = True, is_stub: bool = False) -> str:
         if use_stream_iterator and method.server_streaming:
-            result = f"{self._import('collections.abc', 'Iterator')}[{result}]"
+            result = "None"
+        else:
+            if is_stub:
+                result = f"{self._import_message(method.output_type)}"
+            else:
+                result = f"{self._import_message(method.output_type)} | None"
         return result
 
     def write_grpc_methods(self, service: d.ServiceDescriptorProto, scl_prefix: SourceCodeLocation) -> None:
@@ -733,7 +737,7 @@ class PkgWriter(object):
             wl("{}: {}[", method.name, self._callable_type(method))
             with self._indent():
                 wl("{},", self._input_type(method, False))
-                wl("{},", self._output_type(method, False))
+                wl("{},", self._output_type(method, False, True))
             wl("]")
             self._write_comments(scl)
 
